@@ -1,3 +1,7 @@
+import { lightenColor } from '../shared/color.js';
+import '../shared/components.js';
+import { copyFromOutput } from '../shared/persistence.js';
+
 const state = {
   type: 'simple',
   color: '#4099a0',
@@ -25,7 +29,6 @@ function setType(type) {
   const hasWidth     = type === 'simple' || type === 'double' || type === 'zigzag';
   const hasFaded     = type === 'simple' || type === 'double';
 
-  // update slider range per type
   if (hasThickness) {
     const [min, max, def] = THICKNESS_RANGES[type];
     const slider = document.getElementById('thicknessSlider');
@@ -37,7 +40,6 @@ function setType(type) {
     }
   }
 
-  // auto-seed glow color when first switching to a heartbeat type
   if (isHeartbeat) {
     state.glowColor = lightenColor(state.color, 60);
     document.getElementById('glowPicker').value = state.glowColor;
@@ -99,16 +101,10 @@ function setFaded(checked) {
 
 function setMusicStyle(style) {
   state.musicStyle = style;
-  document.getElementById('styleBottom').classList.toggle('active', style === 'bottom');
-  document.getElementById('styleCenter').classList.toggle('active', style === 'center');
+  document.querySelectorAll('[data-mstyle]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mstyle === style);
+  });
   generate();
-}
-
-function lightenColor(hex, amt) {
-  const r = Math.min(255, parseInt(hex.slice(1,3),16) + amt);
-  const g = Math.min(255, parseInt(hex.slice(3,5),16) + amt);
-  const b = Math.min(255, parseInt(hex.slice(5,7),16) + amt);
-  return '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
 }
 
 function gradientDefs(id, c) {
@@ -266,5 +262,20 @@ function generate() {
   document.getElementById('preview').innerHTML = previewHtml;
   document.getElementById('output').textContent = rentryCode;
 }
+
+document.querySelectorAll('[data-type]').forEach(btn => {
+  btn.addEventListener('click', () => setType(btn.dataset.type));
+});
+document.querySelectorAll('[data-mstyle]').forEach(btn => {
+  btn.addEventListener('click', () => setMusicStyle(btn.dataset.mstyle));
+});
+document.getElementById('colorPicker').addEventListener('input', e => setColor(e.target.value));
+document.getElementById('hexInput').addEventListener('input', e => setHexColor(e.target.value));
+document.getElementById('thicknessSlider').addEventListener('input', e => setThickness(e.target.value));
+document.getElementById('widthSlider').addEventListener('input', e => setWidth(e.target.value));
+document.getElementById('fadedCheck').addEventListener('change', e => setFaded(e.target.checked));
+document.getElementById('glowPicker').addEventListener('input', e => setGlowColor(e.target.value));
+document.getElementById('glowHexInput').addEventListener('input', e => setHexGlowColor(e.target.value));
+document.getElementById('copyBtn').addEventListener('click', copyFromOutput);
 
 generate();

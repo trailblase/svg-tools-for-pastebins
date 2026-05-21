@@ -6,10 +6,10 @@
   <title>Spotify Widget — Rentried</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../styles.css">
-  <script src="../common.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('rentried-theme') || 'dark');</script>
 </head>
 <body data-page="spotify-widget">
   <site-header active-page="spotify-widget"></site-header>
@@ -41,7 +41,7 @@
             <div class="d-flex align-items-center gap-2">
               <label class="ctrl-label" style="min-width:50px">Cover:</label>
               <input type="file" id="albumUpload" accept="image/*" style="flex:1;font-size:13px;min-width:0">
-              <button class="btn-sm" id="clearAlbum" style="display:none" onclick="clearAlbum()">✕</button>
+              <button class="btn-sm" id="clearAlbum" style="display:none">✕</button>
             </div>
           </div>
         </div>
@@ -81,8 +81,8 @@
             </div>
             <div class="mb-2">
               <div class="toggle-group">
-                <button class="toggle-btn active" data-barcm="solid" onclick="setBarColorMode('solid')">Solid</button>
-                <button class="toggle-btn" data-barcm="gradient" onclick="setBarColorMode('gradient')">Gradient</button>
+                <button class="toggle-btn active" data-barcm="solid">Solid</button>
+                <button class="toggle-btn" data-barcm="gradient">Gradient</button>
               </div>
             </div>
             <div id="barSolidSection">
@@ -109,8 +109,8 @@
           <div>
             <div class="panel-header">Card Layout</div>
             <div class="toggle-group">
-              <button class="toggle-btn active" data-layout="wide" onclick="setLayout('wide')">Wide</button>
-              <button class="toggle-btn" data-layout="square" onclick="setLayout('square')">Square</button>
+              <button class="toggle-btn active" data-layout="wide">Wide</button>
+              <button class="toggle-btn" data-layout="square">Square</button>
             </div>
           </div>
 
@@ -118,20 +118,20 @@
             <div class="panel-header">Bar Style</div>
             <span class="section-label d-block mb-1">Shape</span>
             <div class="toggle-group mb-3">
-              <button class="toggle-btn active" data-shape="sharp" onclick="setBarShape('sharp')">Sharp</button>
-              <button class="toggle-btn" data-shape="rounded" onclick="setBarShape('rounded')">Rounded</button>
+              <button class="toggle-btn active" data-shape="sharp">Sharp</button>
+              <button class="toggle-btn" data-shape="rounded">Rounded</button>
             </div>
             <span class="section-label d-block mb-1">State</span>
             <div class="toggle-group">
-              <button class="toggle-btn active" data-pstate="playing" onclick="setPlayerState('playing')">Playing</button>
-              <button class="toggle-btn" data-pstate="paused" onclick="setPlayerState('paused')">Paused</button>
+              <button class="toggle-btn active" data-pstate="playing">Playing</button>
+              <button class="toggle-btn" data-pstate="paused">Paused</button>
             </div>
           </div>
 
           <div>
             <div class="panel-header">Progress Bar</div>
             <div class="d-flex align-items-center gap-2 checkbox-group mb-2">
-              <input type="checkbox" id="showProgress" onchange="update()">
+              <input type="checkbox" id="showProgress">
               <label for="showProgress">Show progress bar</label>
             </div>
             <div id="progressSettings" style="display:none">
@@ -140,7 +140,7 @@
                   <span>Progress</span>
                   <span id="progressValue">40%</span>
                 </div>
-                <input type="range" class="slider" id="progressPct" min="0" max="100" value="40" oninput="document.getElementById('progressValue').textContent=this.value+'%';update()">
+                <input type="range" class="slider" id="progressPct" min="0" max="100" value="40">
               </div>
               <div class="d-flex align-items-center gap-2 mt-2">
                 <label class="ctrl-label">Color:</label>
@@ -163,14 +163,14 @@
           <div class="panel-header mt-2">Generated Code</div>
           <div class="code-output" id="codeOutput"></div>
 
-          <button class="copy-btn" id="copyBtn" onclick="copyCode()">Copy Code</button>
+          <button class="copy-btn" id="copyBtn">Copy Code</button>
         </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="spotify-widget.js"></script>
+  <script type="module" src="spotify-widget.js"></script>
   <site-footer></site-footer>
 </body>
 </html>

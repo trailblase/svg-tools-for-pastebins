@@ -1,3 +1,8 @@
+import { lerpColor } from '../shared/color.js';
+import { escXML } from '../shared/svg.js';
+import '../shared/components.js';
+import { copyFromOutput } from '../shared/persistence.js';
+
 const H1 = [0.40, 0.72, 0.95, 0.85, 0.90, 0.78, 0.55, 0.48, 0.65, 0.80, 0.92, 0.70, 0.45, 0.60, 0.88, 0.50];
 const H2 = [0.65, 0.45, 0.80, 0.95, 0.70, 0.90, 0.40, 0.75, 0.85, 0.60, 0.50, 0.88, 0.72, 0.40, 0.65, 0.78];
 const H3 = [0.88, 0.70, 0.50, 0.72, 0.95, 0.55, 0.80, 0.60, 0.45, 0.90, 0.75, 0.48, 0.85, 0.65, 0.42, 0.92];
@@ -8,20 +13,6 @@ let barShape = 'sharp';
 let playerState = 'playing';
 let albumDataUrl = null;
 let cardLayout = 'wide';
-
-function lerpColor(a, b, t) {
-  const parse = h => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-  const [ar, ag, ab] = parse(a);
-  const [br, bg, bb] = parse(b);
-  const r = Math.round(ar + (br - ar) * t);
-  const g = Math.round(ag + (bg - ag) * t);
-  const bv = Math.round(ab + (bb - ab) * t);
-  return '#' + [r, g, bv].map(v => v.toString(16).padStart(2, '0')).join('');
-}
-
-function esc(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
 
 function buildSVG() {
   const song = document.getElementById('songName').value.trim() || 'Song Name';
@@ -101,8 +92,8 @@ function buildSVG() {
   <rect width="${W}" height="${H}" rx="12" fill="${cardBg}"/>
   ${leftEl}
   <svg x="${infoX}" y="0" width="${infoW}" height="${H}" overflow="hidden">
-    <text y="${songY}" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="${esc(songColor)}">${esc(song)}</text>
-    <text y="${artistY}" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="${esc(artistColor)}">${esc(artist)}</text>
+    <text y="${songY}" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="18" font-weight="700" fill="${escXML(songColor)}">${escXML(song)}</text>
+    <text y="${artistY}" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="13" fill="${escXML(artistColor)}">${escXML(artist)}</text>
     ${progressSvg}
   </svg>
   ${barRects}
@@ -128,12 +119,10 @@ function buildSquareSVG() {
   const artY = pad;
   const rx = barShape === 'rounded' ? 3 : 0;
 
-  // text area
   const songY = artY + artSize + 28;
   const artistY2 = songY + 20;
   const cx = W / 2;
 
-  // bars
   const barsBottom = H - pad;
   const barsY = artistY2 + (showProgress ? 26 : 18);
   const maxBarH = barsBottom - barsY;
@@ -185,8 +174,8 @@ function buildSquareSVG() {
   return `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
   <rect width="${W}" height="${H}" rx="12" fill="${cardBg}"/>
   ${leftEl}
-  <text x="${cx}" y="${songY}" text-anchor="middle" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="${esc(songColor)}">${esc(song)}</text>
-  <text x="${cx}" y="${artistY2}" text-anchor="middle" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="${esc(artistColor)}">${esc(artist)}</text>
+  <text x="${cx}" y="${songY}" text-anchor="middle" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="15" font-weight="700" fill="${escXML(songColor)}">${escXML(song)}</text>
+  <text x="${cx}" y="${artistY2}" text-anchor="middle" font-family="system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif" font-size="12" fill="${escXML(artistColor)}">${escXML(artist)}</text>
   ${progressSvg}
   ${barRects}
 </svg>`;
@@ -226,9 +215,9 @@ function setBarShape(shape) {
   update();
 }
 
-function setPlayerState(state) {
-  playerState = state;
-  document.querySelectorAll('[data-pstate]').forEach(b => b.classList.toggle('active', b.dataset.pstate === state));
+function setPlayerState(ps) {
+  playerState = ps;
+  document.querySelectorAll('[data-pstate]').forEach(b => b.classList.toggle('active', b.dataset.pstate === ps));
   update();
 }
 
@@ -241,50 +230,62 @@ function bindColorHex(pickerId, hexId) {
   });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  ['cardBg', 'songColor', 'artistColor', 'logoColor', 'barColor', 'barGradStart', 'barGradEnd', 'progressColor'].forEach(id => {
-    bindColorHex(id, id + 'Hex');
-  });
-  ['songName', 'artistName', 'linkUrl'].forEach(id => {
-    document.getElementById(id).addEventListener('input', update);
-  });
-  document.getElementById('barCount').addEventListener('input', update);
-  document.getElementById('showProgress').addEventListener('change', update);
+// Toggle buttons
+document.querySelectorAll('[data-layout]').forEach(b => b.addEventListener('click', () => setLayout(b.dataset.layout)));
+document.querySelectorAll('[data-barcm]').forEach(b => b.addEventListener('click', () => setBarColorMode(b.dataset.barcm)));
+document.querySelectorAll('[data-shape]').forEach(b => b.addEventListener('click', () => setBarShape(b.dataset.shape)));
+document.querySelectorAll('[data-pstate]').forEach(b => b.addEventListener('click', () => setPlayerState(b.dataset.pstate)));
 
-  document.getElementById('albumUpload').addEventListener('change', function () {
-    const file = this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      if (file.type === 'image/gif') {
-        albumDataUrl = e.target.result;
-        document.getElementById('clearAlbum').style.display = '';
-        update();
-      } else {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.getElementById('resizeCanvas');
-          const ctx = canvas.getContext('2d');
-          const size = Math.min(img.width, img.height);
-          const sx = (img.width - size) / 2;
-          const sy = (img.height - size) / 2;
-          ctx.drawImage(img, sx, sy, size, size, 0, 0, 88, 88);
-          albumDataUrl = canvas.toDataURL('image/png');
-          document.getElementById('clearAlbum').style.display = '';
-          update();
-        };
-        img.src = e.target.result;
-      }
-    };
-    reader.readAsDataURL(file);
-  });
+// Color pickers
+['cardBg', 'songColor', 'artistColor', 'logoColor', 'barColor', 'barGradStart', 'barGradEnd', 'progressColor'].forEach(id => {
+  bindColorHex(id, id + 'Hex');
+});
 
+// Text inputs
+['songName', 'artistName', 'linkUrl'].forEach(id => {
+  document.getElementById(id).addEventListener('input', update);
+});
+
+document.getElementById('barCount').addEventListener('input', update);
+document.getElementById('showProgress').addEventListener('change', update);
+document.getElementById('progressPct').addEventListener('input', e => {
+  document.getElementById('progressValue').textContent = e.target.value + '%';
   update();
 });
 
-function clearAlbum() {
+document.getElementById('clearAlbum').addEventListener('click', () => {
   albumDataUrl = null;
   document.getElementById('albumUpload').value = '';
   document.getElementById('clearAlbum').style.display = 'none';
   update();
-}
+});
+
+document.getElementById('albumUpload').addEventListener('change', function () {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    if (file.type === 'image/gif') {
+      albumDataUrl = e.target.result;
+      document.getElementById('clearAlbum').style.display = '';
+      update();
+    } else {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.getElementById('resizeCanvas');
+        const ctx = canvas.getContext('2d');
+        const size = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - size) / 2, (img.height - size) / 2, size, size, 0, 0, 88, 88);
+        albumDataUrl = canvas.toDataURL('image/png');
+        document.getElementById('clearAlbum').style.display = '';
+        update();
+      };
+      img.src = e.target.result;
+    }
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById('copyBtn').addEventListener('click', copyFromOutput);
+
+update();

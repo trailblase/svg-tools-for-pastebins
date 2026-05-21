@@ -1,4 +1,8 @@
-// fonts are loaded from fonts.json on DOMContentLoaded
+import { hexToRgbaEncoded, hexToRgba } from '../shared/color.js';
+import '../shared/components.js';
+import { copyFromOutput } from '../shared/persistence.js';
+
+// fonts are loaded from fonts.json
 let fonts = [];
 
 let state = {
@@ -64,14 +68,13 @@ function initFontGrid() {
     option.className = 'font-option' + (index === 0 ? ' selected' : '');
     option.style.fontFamily = font.family;
     option.textContent = font.name;
-    option.onclick = () => selectFont(index);
+    option.addEventListener('click', () => selectFont(index));
     grid.appendChild(option);
   });
 }
 
 function selectFont(index) {
   state.font = fonts[index];
-  // update the visual selection (remove from old, add to new)
   document.querySelectorAll('.font-option').forEach((el, i) => {
     el.classList.toggle('selected', i === index);
   });
@@ -87,11 +90,10 @@ function setTextMode(mode) {
 }
 
 function setColorMode(mode) {
-  state.colorMode = mode; //the current color mode
+  state.colorMode = mode;
   document.querySelectorAll('[data-color]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.color === mode);
   });
-  
   document.getElementById('solidColorSection').style.display = mode === 'solid' ? 'block' : 'none';
   document.getElementById('gradientColorSection').style.display = mode === 'gradient' ? 'block' : 'none';
   updatePreview();
@@ -123,16 +125,12 @@ function setAnimation(anim) {
 
 function setMarqueeDir(dir) {
   state.marqueeDir = dir;
-  document.getElementById('dirLtr').classList.toggle('active', dir === 'ltr');
-  document.getElementById('dirRtl').classList.toggle('active', dir === 'rtl');
-  document.getElementById('dirBounce').classList.toggle('active', dir === 'bounce');
+  document.querySelectorAll('[data-mdir]').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mdir === dir);
+  });
   updatePreview();
 }
 
-function setMarqueeFade(el) {
-  state.marqueeFade = el.checked;
-  updatePreview();
-}
 function setTextAlign(align) {
   state.textAlign = align;
   document.querySelectorAll('[data-align]').forEach(btn => {
@@ -167,6 +165,7 @@ function setOverlineStyle(style) {
   });
   updatePreview();
 }
+
 // requires some fixing later since some animations dont account for flipping
 function toggleTransform(type) {
   state.transform[type] = !state.transform[type];
@@ -191,10 +190,6 @@ function toggleOutline() {
   document.getElementById('outlineSettings').classList.toggle('visible', state.outlineEnabled);
   updatePreview();
 }
-
-
-// event listeners update the preview box in real-time
-// this is kinda long but pretty straightforward
 
 function initEventListeners() {
   document.getElementById('textInput').addEventListener('input', (e) => {
@@ -221,7 +216,7 @@ function initEventListeners() {
     }
   });
 
-    document.getElementById('gradientStart').addEventListener('input', (e) => {
+  document.getElementById('gradientStart').addEventListener('input', (e) => {
     state.gradientStart = e.target.value;
     document.getElementById('gradientStartHex').value = e.target.value;
     updatePreview();
@@ -234,7 +229,8 @@ function initEventListeners() {
       updatePreview();
     }
   });
-    document.getElementById('gradientEnd').addEventListener('input', (e) => {
+
+  document.getElementById('gradientEnd').addEventListener('input', (e) => {
     state.gradientEnd = e.target.value;
     document.getElementById('gradientEndHex').value = e.target.value;
     updatePreview();
@@ -295,7 +291,8 @@ function initEventListeners() {
     document.getElementById('shadowOpacityValue').textContent = Math.round(state.shadowOpacity * 100) + '%';
     updatePreview();
   });
-    document.getElementById('shadowX').addEventListener('input', (e) => {
+
+  document.getElementById('shadowX').addEventListener('input', (e) => {
     state.shadowX = parseInt(e.target.value) || 0;
     updatePreview();
   });
@@ -334,6 +331,9 @@ function initEventListeners() {
     updatePreview();
   });
 
+  document.getElementById('underlineEnabled').addEventListener('change', () => toggleDecoration('underline'));
+  document.getElementById('overlineEnabled').addEventListener('change', () => toggleDecoration('overline'));
+
   document.getElementById('underlineColor').addEventListener('input', (e) => {
     state.underline.color = e.target.value;
     updatePreview();
@@ -358,6 +358,43 @@ function initEventListeners() {
     state.transform.rotate = parseInt(e.target.value) || 0;
     updatePreview();
   });
+
+  document.getElementById('marqueeFade').addEventListener('change', (e) => {
+    state.marqueeFade = e.target.checked;
+    updatePreview();
+  });
+
+  document.querySelectorAll('[data-mode]').forEach(btn =>
+    btn.addEventListener('click', () => setTextMode(btn.dataset.mode)));
+
+  document.querySelectorAll('[data-align]').forEach(btn =>
+    btn.addEventListener('click', () => setTextAlign(btn.dataset.align)));
+
+  document.querySelectorAll('[data-color]').forEach(btn =>
+    btn.addEventListener('click', () => setColorMode(btn.dataset.color)));
+
+  document.querySelectorAll('.direction-btn').forEach(btn =>
+    btn.addEventListener('click', () => setGradientDir(btn.dataset.dir)));
+
+  document.querySelectorAll('[data-effect]').forEach(btn =>
+    btn.addEventListener('click', () => toggleEffect(btn.dataset.effect)));
+
+  document.querySelectorAll('[data-transform]').forEach(btn =>
+    btn.addEventListener('click', () => toggleTransform(btn.dataset.transform)));
+
+  document.querySelectorAll('.underline-style').forEach(btn =>
+    btn.addEventListener('click', () => setUnderlineStyle(btn.dataset.ulstyle)));
+
+  document.querySelectorAll('.overline-style').forEach(btn =>
+    btn.addEventListener('click', () => setOverlineStyle(btn.dataset.olstyle)));
+
+  document.querySelectorAll('.animation-option').forEach(btn =>
+    btn.addEventListener('click', () => setAnimation(btn.dataset.anim)));
+
+  document.querySelectorAll('[data-mdir]').forEach(btn =>
+    btn.addEventListener('click', () => setMarqueeDir(btn.dataset.mdir)));
+
+  document.getElementById('copyBtn').addEventListener('click', copyFromOutput);
 }
 
 function measureLineWidth(text) {
@@ -384,7 +421,7 @@ function generateCode() {
   const lines = state.textMode === 'multi' ? state.text.split('\n') : [state.text];
   const lineHeight = state.fontSize * 1.3;  // standard line height ratio
 
-    const effectPadding = Math.max(
+  const effectPadding = Math.max(
     state.glowEnabled ? state.glowSize * 2 : 0,
     state.shadowEnabled ? Math.abs(state.shadowY) + state.shadowBlur : 0,
     state.outlineEnabled ? state.outlineWidth * 2 : 0,
@@ -399,7 +436,7 @@ function generateCode() {
   styles.push(`font-family:${state.font.family}`);
   styles.push(`font-size:${state.fontSize}px`);
 
-   const effectiveWeight = state.effects.bold ? Math.max(state.fontWeight, 700) : state.fontWeight;
+  const effectiveWeight = state.effects.bold ? Math.max(state.fontWeight, 700) : state.fontWeight;
   styles.push(`font-weight:${effectiveWeight}`);
 
   if (state.colorMode === 'gradient') {
@@ -414,7 +451,6 @@ function generateCode() {
     defs = `<defs><linearGradient id='g' x1='${d.x1}' y1='${d.y1}' x2='${d.x2}' y2='${d.y2}'><stop offset='0%25' stop-color='${state.gradientStart.replace('#', '%23')}'${gradOpacity}/><stop offset='100%25' stop-color='${state.gradientEnd.replace('#', '%23')}'${gradOpacity}/></linearGradient></defs>`;
     styles.push('fill:url%28%23g%29');
   } else {
-    // solid color is simpler
     styles.push(`fill:${state.solidColor.replace('#', '%23')}`);
     if (state.solidOpacity < 1) {
       styles.push(`fill-opacity:${state.solidOpacity}`);
@@ -445,13 +481,13 @@ function generateCode() {
   let staticFilters = [];  // filters that stay constant (for glow-pulse animation)
   if (state.effects.blur) filters.push('blur%281px%29');
   if (state.shadowEnabled) {
-    const shadowColorWithOpacity = hexToRgba(state.shadowColor, state.shadowOpacity);
+    const shadowColorWithOpacity = hexToRgbaEncoded(state.shadowColor, state.shadowOpacity);
     const shadowFilter = `drop-shadow%28${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity}%29`;
     filters.push(shadowFilter);
     staticFilters.push(shadowFilter);
   }
   if (state.glowEnabled) {
-    const glowColorWithOpacity = hexToRgba(state.glowColor, state.glowOpacity);
+    const glowColorWithOpacity = hexToRgbaEncoded(state.glowColor, state.glowOpacity);
     filters.push(`drop-shadow%280 0 ${state.glowSize}px ${glowColorWithOpacity}%29`);
   }
 
@@ -468,13 +504,14 @@ function generateCode() {
       animationProp = `animation:pulse ${speed}s ease-in-out infinite`;
       animationKeyframes = `@keyframes pulse{0%25,100%25{opacity:1;}50%25{opacity:0.5;}}`;
       break;
-    case 'glow-pulse':
+    case 'glow-pulse': {
       const glowCol = state.glowColor.replace('#', '%23');
       const baseFilters = staticFilters.length > 0 ? staticFilters.join(' ') + ' ' : '';
       animationProp = `animation:glowp ${speed}s ease-in-out infinite`;
       animationKeyframes = `@keyframes glowp{0%25,100%25{filter:${baseFilters}drop-shadow%280 0 2px ${glowCol}%29;}50%25{filter:${baseFilters}drop-shadow%280 0 10px ${glowCol}%29;}}`;
       filters = staticFilters.slice();
       break;
+    }
     case 'color-shift':
       animationProp = `animation:colorshift ${speed}s linear infinite`;
       animationKeyframes = `@keyframes colorshift{0%25{fill:%23ff69b4;}33%25{fill:%2300ffff;}66%25{fill:%23ffd700;}100%25{fill:%23ff69b4;}}`;
@@ -492,7 +529,7 @@ function generateCode() {
       break;
   }
 
-    if (filters.length > 0 && state.animation !== 'glow-pulse') {
+  if (filters.length > 0 && state.animation !== 'glow-pulse') {
     styles.push(`filter:${filters.join(' ')}`);
   }
 
@@ -588,7 +625,7 @@ function generateCode() {
       const vals = `${lineY};${lineY - amp};${lineY}`;
       let letters = '';
       for (let i = 0; i < line.length; i++) {
-        const char = escapeText(line[i] === ' ' ? '\u00A0' : line[i]);
+        const char = escapeText(line[i] === ' ' ? ' ' : line[i]);
         const lx = (startX + i * step).toFixed(1);
         const begin = ((startIdx + i) * delay).toFixed(1) + 's';
         letters += `<text x='${lx}' y='${lineY}'>${char}<animate attributeName='y' values='${vals}' dur='${speed}s' begin='${begin}' repeatCount='indefinite' calcMode='spline' keyTimes='0;0.5;1' keySplines='${splines}'/></text>`;
@@ -719,7 +756,7 @@ function generateCode() {
     }
   }
 
-    const allExtraStyles = extraStyles + groupKeyframes;
+  const allExtraStyles = extraStyles + groupKeyframes;
   const svg = `![](data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'>${defs}<style>/*<![CDATA[*/text{${styleStr}}${allExtraStyles}/*]]>*/</style>${content}</svg>){100%:${totalHeight}}`;
 
   return svg;
@@ -737,20 +774,6 @@ function escapeText(text) {
     .replace(/\(/g, '%28')
     .replace(/\)/g, '%29')
     .replace(/#/g, '%23');
-}
-
-function hexToRgba(hex, opacity) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba%28${r},${g},${b},${opacity}%29`;
-}
-
-function hexToRgbaPlain(hex, opacity) {
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-  return `rgba(${r},${g},${b},${opacity})`;
 }
 
 // basically the same as generateCode but outputs regular svg for the preview
@@ -823,13 +846,13 @@ function updatePreview() {
   let staticFilters = [];
   if (state.effects.blur) filters.push('blur(1px)');
   if (state.shadowEnabled) {
-    const shadowColorWithOpacity = hexToRgbaPlain(state.shadowColor, state.shadowOpacity);
+    const shadowColorWithOpacity = hexToRgba(state.shadowColor, state.shadowOpacity);
     const shadowFilter = `drop-shadow(${state.shadowX}px ${state.shadowY}px ${state.shadowBlur}px ${shadowColorWithOpacity})`;
     filters.push(shadowFilter);
     staticFilters.push(shadowFilter);
   }
   if (state.glowEnabled) {
-    const glowColorWithOpacity = hexToRgbaPlain(state.glowColor, state.glowOpacity);
+    const glowColorWithOpacity = hexToRgba(state.glowColor, state.glowOpacity);
     filters.push(`drop-shadow(0 0 ${state.glowSize}px ${glowColorWithOpacity})`);
   }
 
@@ -846,12 +869,13 @@ function updatePreview() {
       animationProp = `animation:pulse ${speed}s ease-in-out infinite`;
       animationKeyframes = `@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}`;
       break;
-    case 'glow-pulse':
+    case 'glow-pulse': {
       const baseFilters = staticFilters.length > 0 ? staticFilters.join(' ') + ' ' : '';
       animationProp = `animation:glowp ${speed}s ease-in-out infinite`;
       animationKeyframes = `@keyframes glowp{0%,100%{filter:${baseFilters}drop-shadow(0 0 2px ${state.glowColor});}50%{filter:${baseFilters}drop-shadow(0 0 10px ${state.glowColor});}}`;
       filters = staticFilters.slice();
       break;
+    }
     case 'color-shift':
       animationProp = `animation:colorshift ${speed}s linear infinite`;
       animationKeyframes = `@keyframes colorshift{0%{fill:#ff69b4;}33%{fill:#00ffff;}66%{fill:#ffd700;}100%{fill:#ff69b4;}}`;
@@ -965,7 +989,7 @@ function updatePreview() {
       const vals = `${lineY};${lineY - amp};${lineY}`;
       let letters = '';
       for (let i = 0; i < line.length; i++) {
-        const char = escapeHTML(line[i] === ' ' ? '\u00A0' : line[i]);
+        const char = escapeHTML(line[i] === ' ' ? ' ' : line[i]);
         const lx = (startX + i * step).toFixed(1);
         const begin = ((startIdx + i) * delay).toFixed(1) + 's';
         letters += `<text x="${lx}" y="${lineY}">${char}<animate attributeName="y" values="${vals}" dur="${speed}s" begin="${begin}" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.5;1" keySplines="${splines}"/></text>`;
@@ -1101,14 +1125,12 @@ function escapeHTML(text) {
     .replace(/'/g, '&#39;');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  fetch('fonts.json')
-    .then(r => r.json())
-    .then(data => {
-      fonts = data;
-      state.font = fonts[0];
-      initFontGrid();
-      initEventListeners();
-      updatePreview();
-    });
-});
+fetch('fonts.json')
+  .then(r => r.json())
+  .then(data => {
+    fonts = data;
+    state.font = fonts[0];
+    initFontGrid();
+    initEventListeners();
+    updatePreview();
+  });

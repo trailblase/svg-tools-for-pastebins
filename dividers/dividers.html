@@ -6,10 +6,10 @@
   <title>Dividers — Rentried</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="../styles.css">
-  <script src="../common.js"></script>
+  <link rel="stylesheet" href="../shared/styles.css">
+  <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('rentried-theme') || 'dark');</script>
 </head>
 <body data-page="dividers">
   <site-header active-page="dividers"></site-header>
@@ -26,27 +26,27 @@
         <div>
           <div class="panel-header">Type</div>
           <div class="options-grid cols-2">
-            <div class="option-btn selected" data-type="simple" onclick="setType('simple')">Simple Bar</div>
-            <div class="option-btn" data-type="double" onclick="setType('double')">Double Line</div>
-            <div class="option-btn" data-type="zigzag" onclick="setType('zigzag')">Zigzag</div>
-            <div class="option-btn" data-type="heartbeat" onclick="setType('heartbeat')">Heartbeat</div>
-            <div class="option-btn" data-type="heartbeat-loop" onclick="setType('heartbeat-loop')">Heartbeat Loop</div>
-            <div class="option-btn" data-type="music" onclick="setType('music')">Music Visualiser</div>
+            <div class="option-btn selected" data-type="simple">Simple Bar</div>
+            <div class="option-btn" data-type="double">Double Line</div>
+            <div class="option-btn" data-type="zigzag">Zigzag</div>
+            <div class="option-btn" data-type="heartbeat">Heartbeat</div>
+            <div class="option-btn" data-type="heartbeat-loop">Heartbeat Loop</div>
+            <div class="option-btn" data-type="music">Music Visualiser</div>
           </div>
         </div>
 
         <div>
           <div class="panel-header">Color</div>
           <div class="d-flex align-items-center gap-2">
-            <input type="color" class="color-picker" id="colorPicker" value="#4099a0" onchange="setColor(this.value)">
-            <input type="text" class="hex-input" id="hexInput" value="#4099A0" oninput="setHexColor(this.value)" maxlength="7">
+            <input type="color" class="color-picker" id="colorPicker" value="#4099a0">
+            <input type="text" class="hex-input" id="hexInput" value="#4099A0" maxlength="7">
           </div>
         </div>
 
         <div id="thicknessPanel">
           <div class="panel-header">Thickness</div>
           <div class="d-flex align-items-center gap-2">
-            <input type="range" class="slider" id="thicknessSlider" min="1" max="20" value="4" oninput="setThickness(this.value)">
+            <input type="range" class="slider" id="thicknessSlider" min="1" max="20" value="4">
             <span class="unit" id="thicknessVal">4px</span>
           </div>
         </div>
@@ -54,14 +54,14 @@
         <div id="widthPanel" style="display:none">
           <div class="panel-header">Width</div>
           <div class="d-flex align-items-center gap-2">
-            <input type="range" class="slider" id="widthSlider" min="10" max="100" step="5" value="100" oninput="setWidth(this.value)">
+            <input type="range" class="slider" id="widthSlider" min="10" max="100" step="5" value="100">
             <span class="unit" id="widthVal">100%</span>
           </div>
         </div>
 
         <div id="fadedPanel" style="display:none">
           <div class="checkbox-group d-flex align-items-center gap-2">
-            <input type="checkbox" id="fadedCheck" onchange="setFaded(this.checked)">
+            <input type="checkbox" id="fadedCheck">
             <label for="fadedCheck">Faded ends</label>
           </div>
         </div>
@@ -69,16 +69,16 @@
         <div id="glowPanel" style="display:none">
           <div class="panel-header">Glow Color</div>
           <div class="d-flex align-items-center gap-2">
-            <input type="color" class="color-picker" id="glowPicker" value="#9ecfd2" onchange="setGlowColor(this.value)">
-            <input type="text" class="hex-input" id="glowHexInput" value="#9ECFD2" oninput="setHexGlowColor(this.value)" maxlength="7">
+            <input type="color" class="color-picker" id="glowPicker" value="#9ecfd2">
+            <input type="text" class="hex-input" id="glowHexInput" value="#9ECFD2" maxlength="7">
           </div>
         </div>
 
         <div id="musicStylePanel" style="display:none">
           <div class="panel-header">Style</div>
           <div class="toggle-group">
-            <button class="toggle-btn active" id="styleBottom" onclick="setMusicStyle('bottom')">Bottom</button>
-            <button class="toggle-btn" id="styleCenter" onclick="setMusicStyle('center')">Center</button>
+            <button class="toggle-btn active" id="styleBottom" data-mstyle="bottom">Bottom</button>
+            <button class="toggle-btn" id="styleCenter" data-mstyle="center">Center</button>
           </div>
         </div>
 
@@ -93,14 +93,14 @@
         <div>
           <div class="panel-header">Rentry Code</div>
           <div class="code-output" id="output"></div>
-          <button class="copy-btn" id="copyBtn" onclick="copyOutput()">Copy Code</button>
+          <button class="copy-btn" id="copyBtn">Copy Code</button>
         </div>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="dividers.js"></script>
+  <script type="module" src="dividers.js"></script>
   <site-footer></site-footer>
 </body>
 </html>

@@ -1,3 +1,8 @@
+import { hexToRgba } from '../shared/color.js';
+import { escXML, buildWavyPath, buildLineDecor } from '../shared/svg.js';
+import '../shared/components.js';
+import { copyFromOutput } from '../shared/persistence.js';
+
 var _fontCache  = {};
 var _customFont = null;
 
@@ -42,14 +47,6 @@ function activeFamily() {
 
 function setStatus(msg) { el('embedStatus').textContent = msg; }
 
-function escXML(s) {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function hexToRgba(hex, opacity) {
-  return 'rgba(' + parseInt(hex.slice(1,3),16) + ',' + parseInt(hex.slice(3,5),16) + ',' + parseInt(hex.slice(5,7),16) + ',' + opacity + ')';
-}
-
 function setColorMode(mode) {
   state.colorMode = mode;
   document.querySelectorAll('[data-color]').forEach(function(b) { b.classList.toggle('active', b.dataset.color === mode); });
@@ -71,8 +68,7 @@ function toggleEffect(effect) {
 }
 
 function toggleDecoration(type) {
-  var isUl = type === 'underline';
-  var key   = isUl ? 'underline' : 'overline';
+  var key = type === 'underline' ? 'underline' : 'overline';
   state[key].enabled = el(key + 'Enabled').checked;
   el(key + 'Settings').classList.toggle('visible', state[key].enabled);
   updateLivePreview();
@@ -111,11 +107,6 @@ function toggleShadow() {
 function setMarqueeType(type) {
   state.marqueeType = type;
   document.querySelectorAll('[data-mtype]').forEach(function(b) { b.classList.toggle('selected', b.dataset.mtype === type); });
-  updateLivePreview();
-}
-
-function setMarqueeFade(checkbox) {
-  state.marqueeFade = checkbox.checked;
   updateLivePreview();
 }
 
@@ -231,7 +222,7 @@ function fetchLatinFromCss(famSlug) {
     .then(function(css) {
       var urls = extractUrls(css);
       if (!urls.length) throw new Error('No WOFF2 found for ' + famSlug);
-      setStatus('Fetching Latin subset\u2026');
+      setStatus('Fetching Latin subset…');
       return fetchB64(urls[urls.length - 1]).then(function(b) { return [b]; });
     });
 }
@@ -250,7 +241,7 @@ function embedFont() {
   }
 
   btn.disabled = true;
-  setStatus('Fetching "' + fam + '" from Google Fonts\u2026');
+  setStatus('Fetching "' + fam + '" from Google Fonts…');
 
   var famSlug = fam.replace(/ /g, '+');
   fetch('https://fonts.googleapis.com/css2?family=' + famSlug + '&text=' + encodeURIComponent(subset) + '&display=swap')
@@ -258,12 +249,12 @@ function embedFont() {
     .then(function(css) {
       var urls = extractUrls(css);
       if (!urls.length) throw new Error('empty');
-      setStatus('Downloading ' + urls.length + ' glyph subset(s)\u2026');
+      setStatus('Downloading ' + urls.length + ' glyph subset(s)…');
       return Promise.all(urls.map(fetchB64));
     })
     .catch(function() {
       return fallback
-        ? (setStatus('Fetching Latin subset\u2026'), fetchB64(fallback).then(function(b) { return [b]; }))
+        ? (setStatus('Fetching Latin subset…'), fetchB64(fallback).then(function(b) { return [b]; }))
         : fetchLatinFromCss(famSlug);
     })
     .then(function(b64arr) {
@@ -293,22 +284,6 @@ function measureTextWidth(text, fontFamily, fontSize, fontWeight, letterSpacing)
   var w = Math.ceil(probe.getBoundingClientRect().width);
   document.body.removeChild(probe);
   return w;
-}
-
-function buildLineDecor(width, y, decor) {
-  if (decor.style === 'wavy') {
-    var amp = decor.thickness * 1.5, wl = decor.thickness * 4;
-    return '<path d="' + buildWavyPath(width, y, amp, wl) + '" fill="none" stroke="' + decor.color + '" stroke-width="' + decor.thickness + '"/>';
-  }
-  var dash = decor.style === 'dashed' ? ' stroke-dasharray="' + decor.thickness * 3 + ' ' + decor.thickness * 2 + '"' : '';
-  return '<line x1="0" y1="' + y + '" x2="' + width + '" y2="' + y + '" stroke="' + decor.color + '" stroke-width="' + decor.thickness + '"' + dash + '/>';
-}
-
-function buildWavyPath(width, y, amp, wl) {
-  var segs = Math.ceil((width * 2) / wl) + 2;
-  var path = 'M 0 ' + y + ' q ' + (wl/4) + ' ' + (-amp) + ' ' + (wl/2) + ' 0';
-  for (var i = 1; i < segs; i++) path += ' t ' + (wl/2) + ' 0';
-  return path;
 }
 
 function buildSVG(fontFamily, b64arr) {
@@ -394,7 +369,6 @@ function buildSVG(fontFamily, b64arr) {
   el('codeOutput').textContent = '![](data:image/svg+xml;base64,' + b64 + ')';
 }
 
-
 on('fontUrlInput', 'paste',   function() { setTimeout(loadFontFromUrl, 30); });
 on('fontUrlInput', 'keydown', function(e) { if (e.key === 'Enter') loadFontFromUrl(); });
 
@@ -467,6 +441,36 @@ on('animSpeed', 'input', function(e) {
   updateLivePreview();
 });
 
+on('underlineEnabled', 'change', function() { toggleDecoration('underline'); });
+on('overlineEnabled',  'change', function() { toggleDecoration('overline'); });
+on('outlineEnabled',   'change', toggleOutline);
+on('glowEnabled',      'change', toggleGlow);
+on('shadowEnabled',    'change', toggleShadow);
+on('marqueeFade',      'change', function(e) { state.marqueeFade = e.target.checked; updateLivePreview(); });
+
+document.querySelectorAll('[data-color]').forEach(function(b) {
+  b.addEventListener('click', function() { setColorMode(b.dataset.color); });
+});
+document.querySelectorAll('.direction-btn').forEach(function(b) {
+  b.addEventListener('click', function() { setGradientDir(b.dataset.dir); });
+});
+document.querySelectorAll('[data-effect]').forEach(function(b) {
+  b.addEventListener('click', function() { toggleEffect(b.dataset.effect); });
+});
+document.querySelectorAll('.underline-style').forEach(function(b) {
+  b.addEventListener('click', function() { setUnderlineStyle(b.dataset.ulstyle); });
+});
+document.querySelectorAll('.overline-style').forEach(function(b) {
+  b.addEventListener('click', function() { setOverlineStyle(b.dataset.olstyle); });
+});
+document.querySelectorAll('[data-mtype]').forEach(function(b) {
+  b.addEventListener('click', function() { setMarqueeType(b.dataset.mtype); });
+});
+
+on('embedBtn', 'click', embedFont);
+on('copyBtn',  'click', copyFromOutput);
+on('gifBtn',   'click', saveAsGif);
+
 updateLivePreview();
 
 function saveAsGif() {
@@ -487,7 +491,7 @@ function saveAsGif() {
   var totalFrames = Math.min(Math.ceil(state.animSpeed * fps), 300);
   var frameDelay = Math.round(state.animSpeed * 1000 / totalFrames);
 
-  setStatus('Loading GIF encoder\u2026');
+  setStatus('Loading GIF encoder…');
   el('gifBtn').disabled = true;
 
   fetch('https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js')
@@ -521,7 +525,7 @@ function saveAsGif() {
       }
 
       gif.on('progress', function(p) {
-        setStatus('Encoding GIF\u2026 ' + Math.round(p * 100) + '%');
+        setStatus('Encoding GIF… ' + Math.round(p * 100) + '%');
       });
 
       gif.on('finished', function(blob) {
@@ -546,7 +550,7 @@ function saveAsGif() {
             setStatus('Error: no frames could be captured.');
             return;
           }
-          setStatus('Encoding GIF\u2026');
+          setStatus('Encoding GIF…');
           gif.render();
           return;
         }
@@ -568,7 +572,7 @@ function saveAsGif() {
           gif.addFrame(ctx, { copy: true, delay: frameDelay });
           URL.revokeObjectURL(url);
           framesAdded++;
-          setStatus('Capturing frame ' + framesAdded + '/' + totalFrames + '\u2026');
+          setStatus('Capturing frame ' + framesAdded + '/' + totalFrames + '…');
           processFrame(i + 1);
         };
         img.onerror = function() {

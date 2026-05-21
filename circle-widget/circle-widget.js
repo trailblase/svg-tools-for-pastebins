@@ -1,3 +1,7 @@
+import { escXML } from '../shared/svg.js';
+import '../shared/components.js';
+import { copyFromOutput } from '../shared/persistence.js';
+
 const fonts = [
   { name: 'Georgia', family: 'Georgia, serif' },
   { name: 'Times New Roman', family: 'Times New Roman, Times, serif' },
@@ -39,12 +43,12 @@ function initFontGrid() {
     el.className = 'font-option' + (i === 0 ? ' selected' : '');
     el.style.fontFamily = font.family;
     el.textContent = font.name;
-    el.onclick = () => {
+    el.addEventListener('click', () => {
       document.querySelectorAll('#fontGrid .font-option').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
       selectedFont = font;
       build();
-    };
+    });
     grid.appendChild(el);
   });
 }
@@ -66,10 +70,6 @@ function setColorMode(mode) {
   document.getElementById('solidColorSection').style.display = mode === 'solid' ? '' : 'none';
   document.getElementById('gradientColorSection').style.display = mode === 'gradient' ? '' : 'none';
   build();
-}
-
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function build() {
@@ -101,11 +101,6 @@ function build() {
     : '';
 
   const clipR = pfpR - ringW / 2;
-  const pfpEl = pfpDataUrl
-    ? `<clipPath id="pfpClip"><circle cx="${cx}" cy="${cy}" r="${clipR}"/></clipPath>
-      <image href="${pfpDataUrl}" x="${cx - pfpR}" y="${cy - pfpR}" width="${pfpR*2}" height="${pfpR*2}" clip-path="url(#pfpClip)"/>`
-    : `<circle cx="${cx}" cy="${cy}" r="${clipR}" fill="#333"/>
-       <text x="${cx}" y="${cy + 5}" text-anchor="middle" fill="#666" font-size="13" font-family="system-ui">no image</text>`;
 
   let textFill, gradDef = '';
   if (colorMode === 'gradient') {
@@ -123,7 +118,7 @@ function build() {
   const fromDeg = spinDir === 1 ? '0' : '360';
   const toDeg   = spinDir === 1 ? '360' : '0';
 
-  const fontAttr = `font-family="${esc(selectedFont.family)}" font-size="${fontSize}" font-weight="${weight}" font-style="${fontStyle}" fill="${textFill}" letter-spacing="${spacing}"`;
+  const fontAttr = `font-family="${escXML(selectedFont.family)}" font-size="${fontSize}" font-weight="${weight}" font-style="${fontStyle}" fill="${textFill}" letter-spacing="${spacing}"`;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="${S}" height="${S}" viewBox="0 0 ${S} ${S}">
   <defs>
@@ -140,7 +135,7 @@ function build() {
   <g>
     <animateTransform attributeName="transform" type="rotate" from="${fromDeg} ${cx} ${cy}" to="${toDeg} ${cx} ${cy}" dur="${spinSpeed}s" repeatCount="indefinite"/>
     <text ${fontAttr} text-anchor="start">
-      <textPath href="#spinPath">${esc(text)}</textPath>
+      <textPath href="#spinPath">${escXML(text)}</textPath>
     </text>
   </g>
 </svg>`;
@@ -148,9 +143,20 @@ function build() {
   document.getElementById('previewContent').innerHTML = `<div style="width:${S}px">${svg}</div>`;
 
   const b64 = btoa(unescape(encodeURIComponent(svg)));
-  const code = `![Circle Widget](data:image/svg+xml;base64,${b64})`;
-  document.getElementById('codeOutput').textContent = code;
+  document.getElementById('codeOutput').textContent = `![Circle Widget](data:image/svg+xml;base64,${b64})`;
 }
+
+document.querySelectorAll('[data-style]').forEach(btn => {
+  btn.addEventListener('click', () => toggleStyle(btn.dataset.style));
+});
+document.querySelectorAll('[data-color]').forEach(btn => {
+  btn.addEventListener('click', () => setColorMode(btn.dataset.color));
+});
+
+document.getElementById('letterSpacing').addEventListener('input', e => {
+  document.getElementById('spacingValue').textContent = e.target.value + 'px';
+  build();
+});
 
 document.getElementById('pfpUpload').addEventListener('change', function () {
   const file = this.files[0];
@@ -197,6 +203,8 @@ document.getElementById('showRing').addEventListener('change', function () {
   p.addEventListener('input', () => { h.value = p.value; build(); });
   h.addEventListener('input', () => { if (/^#[0-9a-fA-F]{6}$/.test(h.value)) { p.value = h.value; build(); } });
 });
+
+document.getElementById('copyBtn').addEventListener('click', copyFromOutput);
 
 initFontGrid();
 build();
