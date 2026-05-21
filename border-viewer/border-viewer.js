@@ -18,12 +18,6 @@ const S = {
   iOUnit: 'px',
   sliceUnit: '%',
   repeat: 'stretch',
-  shadowOn: false,
-  shColor: '#000000',
-  shX: 0,
-  shY: 4,
-  shBl: 10,
-  shSp: 5,
   pw: 320,
   ph: 180,
   link: { bW: true, bR: true, iW: true, iO: true },
@@ -100,8 +94,6 @@ function renderPreview() {
   previewBox.style.borderColor  = '';
   previewBox.style.borderImage  = '';
   previewBox.style.borderRadius = '';
-  previewBox.style.boxShadow    = '';
-
   if (S.mode === 'simple') {
     previewBox.style.borderWidth  = compact4(S.bW, S.bWUnit);
     previewBox.style.borderStyle  = S.bStyle;
@@ -117,9 +109,6 @@ function renderPreview() {
     }
   }
 
-  if (S.shadowOn) {
-    previewBox.style.boxShadow = `${S.shX}px ${S.shY}px ${S.shBl}px ${S.shSp}px ${S.shColor}`;
-  }
 }
 
 let canvasBmp = null;
@@ -285,10 +274,6 @@ function renderCode() {
     lines.push(`CONTAINER_BORDER_IMAGE_REPEAT = ${S.repeat}`);
   }
 
-  if (S.shadowOn) {
-    lines.push(`CONTAINER_BOX_SHADOW = ${S.shX}px ${S.shY}px ${S.shBl}px ${S.shSp}px ${S.shColor.toUpperCase()}`);
-  }
-
   codeOutput.textContent = lines.join('\n');
 }
 
@@ -437,15 +422,7 @@ function initEvents() {
     });
   });
 
-  $('shadowOn').addEventListener('change', e => {
-    S.shadowOn = e.target.checked;
-    $('shadowPanel').style.display = S.shadowOn ? '' : 'none';
-    renderPreview(); renderCode();
-  });
-  bindColor('shColor', 'shColorHex', v => { S.shColor = v; renderPreview(); renderCode(); });
-  [['shX','shXv','shX'],['shY','shYv','shY'],['shSp','shSpv','shSp'],['shBl','shBlv','shBl']].forEach(([id,vid,key]) => {
-    $(id).addEventListener('input', e => { S[key] = +e.target.value; $(vid).textContent = S[key]+'px'; renderPreview(); renderCode(); });
-  });
+
 
   $('pw').addEventListener('input', e => { S.pw = +e.target.value; $('pwv').textContent = S.pw+'px'; renderPreview(); });
   $('ph').addEventListener('input', e => { S.ph = +e.target.value; $('phv').textContent = S.ph+'px'; renderPreview(); });
@@ -456,7 +433,6 @@ function initEvents() {
     $('previewThemeBtn').textContent = S.previewDark ? '[L]' : '[D]';
   });
 
-  // Copy
   $('copyBtn').addEventListener('click', () => {
     navigator.clipboard.writeText(codeOutput.textContent).then(() => {
       const btn = $('copyBtn');

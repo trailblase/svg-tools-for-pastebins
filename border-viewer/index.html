@@ -10,128 +10,6 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="../shared/styles.css">
   <script>document.documentElement.setAttribute('data-theme', localStorage.getItem('rentried-theme') || 'dark');</script>
-  <style>
-    .slice-wrap {
-      position: relative;
-      border: 1px solid var(--border);
-      margin-bottom: 0.5rem;
-      background: var(--surface-alt);
-    }
-    #sliceCanvas {
-      display: block;
-      width: 100%;
-      height: auto;
-      cursor: crosshair;
-    }
-    .preview-outer {
-      min-height: 240px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2.5rem;
-      overflow: visible;
-      background: #f0f0f0;
-      border: 1px solid var(--border);
-      position: relative;
-    }
-    .preview-outer.dark-bg { background: #1a1a1a; }
-    #previewBox {
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      flex-shrink: 0;
-      font-size: 0.8rem;
-      color: #555;
-      text-align: center;
-      background: #fff;
-      min-width: 60px;
-      min-height: 40px;
-    }
-    .preview-outer.dark-bg #previewBox {
-      background: #222;
-      color: #aaa;
-    }
-    .unit-sel {
-      background: var(--input-bg);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.7rem;
-      padding: 0 3px;
-      height: 22px;
-      cursor: pointer;
-    }
-    .side-row {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .side-lbl {
-      font-size: 0.62rem;
-      color: var(--text-subtle);
-      min-width: 16px;
-      text-align: center;
-    }
-    .side-num {
-      width: 44px;
-      padding: 0.2rem 0.3rem;
-      font-size: 0.75rem;
-      text-align: center;
-    }
-    .link-btn {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text-subtle);
-      cursor: pointer;
-      font-size: 0.65rem;
-      padding: 1px 5px;
-      line-height: 1.4;
-      flex-shrink: 0;
-      transition: background 0s, color 0s, transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    .link-btn.on {
-      background: var(--active-bg);
-      color: var(--active-text);
-    }
-    .link-btn:hover { transform: scale(1.1); }
-    .theme-preview-btn {
-      position: absolute;
-      top: 6px;
-      right: 6px;
-      background: none;
-      border: 1px solid #888;
-      color: #888;
-      font-family: inherit;
-      font-size: 0.65rem;
-      padding: 1px 5px;
-      cursor: pointer;
-      line-height: 1.4;
-    }
-    .slice-val {
-      font-size: 0.68rem;
-      color: var(--text-subtle);
-      min-width: 30px;
-      text-align: right;
-      font-family: 'Courier New', monospace;
-    }
-    .inline-check {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.72rem;
-      color: var(--text);
-    }
-    .inline-check input { cursor: pointer; }
-    .inline-check label { cursor: pointer; }
-    .help-note {
-      font-size: 0.68rem;
-      color: var(--text-subtle);
-      font-style: italic;
-      margin-top: 3px;
-    }
-  </style>
 </head>
 <body data-page="border-viewer">
   <site-header active-page="border-viewer"></site-header>
@@ -139,15 +17,13 @@
   <div class="page">
     <div class="mb-3">
       <p class="page-title">Border Viewer</p>
-      <p class="page-desc">Preview and generate Rentry metadata border settings. Supports simple borders and custom border images — drag the slice lines or use the sliders.</p>
+      <p class="page-desc">Preview and generate Rentry metadata border settings. Keep in mind this can give some errors</p>
     </div>
 
     <div class="tool-layout">
 
-      <!-- ── Left: Controls ── -->
       <div class="d-flex flex-column gap-2" style="min-width:0">
 
-        <!-- Mode -->
         <div>
           <div class="panel-header">Mode</div>
           <div class="toggle-group">
@@ -156,7 +32,6 @@
           </div>
         </div>
 
-        <!-- ══ SIMPLE ══ -->
         <div id="simplePanel">
 
           <div class="panel-header">Style</div>
@@ -203,7 +78,6 @@
               </div>
             </div>
           </div>
-
           <div class="mt-2">
             <div class="panel-header">Border Radius (corners: TL · TR · BR · BL)</div>
             <div class="side-row mb-1">
@@ -227,12 +101,9 @@
               </select>
             </div>
           </div>
-
         </div>
 
-        <!-- ══ IMAGE ══ -->
         <div id="imagePanel" style="display:none">
-
           <div class="panel-header">Image Source</div>
           <input type="text" class="text-input" id="imgUrl"
             placeholder="Paste image URL (e.g. from rentry.co/metadataborders)…"
@@ -242,8 +113,7 @@
             <button class="btn-sm" id="imgClear" style="display:none">✕ Clear</button>
           </div>
           <p class="help-note">Uploaded files are previewed locally. For the metadata code, host the image and paste its URL.</p>
-
-          <div class="panel-header mt-2">Slice — drag lines or use sliders</div>
+          <div class="panel-header mt-2">Slice and drag lines or use sliders</div>
           <div class="d-flex align-items-center gap-2 mb-1">
             <span style="font-size:0.7rem;color:var(--text-subtle)">Unit:</span>
             <div class="toggle-group" style="gap:2px">
@@ -331,54 +201,10 @@
 
         </div>
 
-        <!-- ══ SHADOW ══ -->
-        <div>
-          <div class="panel-header">Shadow</div>
-          <div class="inline-check mb-2">
-            <input type="checkbox" id="shadowOn">
-            <label for="shadowOn">Enable shadow</label>
-          </div>
-          <div id="shadowPanel" style="display:none">
-            <div class="d-flex align-items-center gap-2 mb-2">
-              <label class="ctrl-label">Color:</label>
-              <input type="color" class="color-picker" id="shColor" value="#000000">
-              <input type="text" class="hex-input" id="shColorHex" value="#000000">
-            </div>
-            <div class="controls-grid">
-              <div>
-                <div class="slider-label d-flex justify-content-between mb-1">
-                  <span>Offset X</span><span id="shXv">0px</span>
-                </div>
-                <input type="range" class="slider" id="shX" min="-15" max="15" value="0">
-              </div>
-              <div>
-                <div class="slider-label d-flex justify-content-between mb-1">
-                  <span>Offset Y</span><span id="shYv">4px</span>
-                </div>
-                <input type="range" class="slider" id="shY" min="-15" max="15" value="4">
-              </div>
-              <div>
-                <div class="slider-label d-flex justify-content-between mb-1">
-                  <span>Spread</span><span id="shSpv">5px</span>
-                </div>
-                <input type="range" class="slider" id="shSp" min="0" max="30" value="5">
-              </div>
-              <div>
-                <div class="slider-label d-flex justify-content-between mb-1">
-                  <span>Blur</span><span id="shBlv">10px</span>
-                </div>
-                <input type="range" class="slider" id="shBl" min="0" max="30" value="10">
-              </div>
-            </div>
-          </div>
-        </div>
-
       </div>
 
-      <!-- ── Right: Preview + Output ── -->
       <div class="tool-output">
         <div>
-
           <div class="panel-header">Container Size</div>
           <div class="controls-grid mb-2">
             <div>
@@ -400,14 +226,11 @@
             <button class="theme-preview-btn" id="previewThemeBtn">[D]</button>
             <div id="previewBox">Your content goes here</div>
           </div>
-
           <div class="panel-header">Generated Metadata</div>
           <div class="code-output" id="codeOutput"></div>
           <button class="copy-btn" id="copyBtn">Copy Code</button>
-
         </div>
       </div>
-
     </div>
   </div>
 
