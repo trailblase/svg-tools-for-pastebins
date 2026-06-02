@@ -1,0 +1,146 @@
+.slice-wrap {
+  position: relative;
+  border: 1px solid var(--border);
+  margin-bottom: var(--space-md);
+  background: var(--surface-alt);
+}
+
+#sliceCanvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  cursor: crosshair;
+}
+
+.preview-outer {
+  min-height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem;
+  overflow: visible;
+  background: #f0f0f0;
+  border: 1px solid var(--border);
+  position: relative;
+
+  &.dark-bg {
+    background: #1a1a1a;
+
+    & #previewBox {
+      background: #222;
+      color: #aaa;
+    }
+  }
+}
+
+#previewBox {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-xl);
+  flex-shrink: 0;
+  font-size: 0.8rem;
+  color: #555;
+  text-align: center;
+  background: #fff;
+  min-width: 60px;
+  min-height: 40px;
+}
+
+.unit-sel {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.7rem;
+  padding: 0 3px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.side-row {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.side-lbl {
+  font-size: 0.62rem;
+  color: var(--text-subtle);
+  min-width: 16px;
+  text-align: center;
+}
+
+.side-num {
+  width: 44px;
+  padding: 0.2rem 0.3rem;
+  font-size: var(--text-md);
+  text-align: center;
+}
+
+.link-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-subtle);
+  cursor: pointer;
+  font-size: var(--text-2xs);
+  padding: 1px 5px;
+  line-height: 1.4;
+  flex-shrink: 0;
+  transition: var(--transition-color), transform var(--duration-fast) var(--ease-bounce);
+
+  &.on {
+    background: var(--active-bg);
+    color: var(--active-text);
+  }
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.theme-preview-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: none;
+  border: 1px solid #888;
+  color: #888;
+  font-family: inherit;
+  font-size: var(--text-2xs);
+  padding: 1px 5px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.slice-val {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  min-width: 30px;
+  text-align: right;
+  font-family: 'Courier New', monospace;
+}
+
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--text-sm);
+  color: var(--text);
+
+  & input {
+    cursor: pointer;
+  }
+
+  & label {
+    cursor: pointer;
+  }
+}
+
+.help-note {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+  font-style: italic;
+  margin-top: 3px;
+}

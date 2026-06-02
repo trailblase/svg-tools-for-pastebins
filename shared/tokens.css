@@ -1,0 +1,58 @@
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-alt: #eeeeee;
+  --surface-raised: #e2e2e2;
+  --border: #000000;
+  --border-strong: #000000;
+  --text: #000000;
+  --text-muted: #333333;
+  --text-subtle: #666666;
+  --btn-bg: #ffffff;
+  --input-bg: #ffffff;
+  --active-bg: #000000;
+  --active-text: #ffffff;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --shadow: 2px 2px 0 #000000;
+  --shadow-lg: 4px 4px 0 #000000;
+
+  --space-xs:  0.25rem;
+  --space-sm:  0.375rem;
+  --space-md:  0.5rem;
+  --space-lg:  0.75rem;
+  --space-xl:  1rem;
+  --space-2xl: 1.25rem;
+  --space-3xl: 2rem;
+
+  --text-2xs:  0.65rem;
+  --text-xs:   0.68rem;
+  --text-sm:   0.72rem;
+  --text-md:   0.77rem;
+  --text-base: 0.85rem;
+  --text-lg:   0.92rem;
+
+  --ease-bounce:      cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast:    0.12s;
+  --duration-base:    0.18s;
+  --duration-slow:    0.28s;
+  --transition-color: background 0s, color 0s;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --surface: #1c1c1c;
+  --surface-alt: #242424;
+  --surface-raised: #2e2e2e;
+  --border: #484848;
+  --border-strong: #6e6e6e;
+  --text: #d4d4d4;
+  --text-muted: #909090;
+  --text-subtle: #525252;
+  --btn-bg: #1c1c1c;
+  --input-bg: #1c1c1c;
+  --active-bg: #d4d4d4;
+  --active-text: #121212;
+  --shadow: 2px 2px 0 #363636;
+  --shadow-lg: 4px 4px 0 #363636;
+}

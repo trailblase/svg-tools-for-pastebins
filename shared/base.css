@@ -1,0 +1,50 @@
+html {
+  font-size: 13px;
+}
+
+body {
+  font-family: 'Share Tech', sans-serif;
+  background-color: #b8b8b8;
+  background-image: repeating-conic-gradient(#c4c4c4 0% 25%, #acacac 0% 50%);
+  background-size: 2px 2px;
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme="dark"] body {
+  background-color: #121212;
+  background-image: repeating-conic-gradient(#181818 0% 25%, #0c0c0c 0% 50%);
+}
+
+::selection {
+  background: #000000;
+  color: #ffffff;
+}
+
+[data-theme="dark"] ::selection {
+  background: #ffffff;
+  color: #000000;
+}
+
+site-header,
+site-footer {
+  display: contents;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-alt);
+  border-left: 1px solid var(--border);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--text);
+  border-radius: 0;
+}

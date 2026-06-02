@@ -1,0 +1,64 @@
+.panel-header {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--active-text);
+  background: var(--active-bg);
+  margin-bottom: var(--space-md);
+  padding: 3px 6px;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0px,
+    rgba(255, 255, 255, 0) 1px,
+    rgba(255, 255, 255, 0.08) 1px,
+    rgba(255, 255, 255, 0.08) 2px
+  );
+}
+
+[data-theme="dark"] .panel-header {
+  background: var(--surface-raised);
+  color: var(--text);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0px,
+    rgba(255, 255, 255, 0) 1px,
+    rgba(255, 255, 255, 0.04) 1px,
+    rgba(255, 255, 255, 0.04) 2px
+  );
+}
+
+.section-label {
+  font-size: var(--text-md);
+  color: var(--text-muted);
+}
+
+.unit {
+  font-size: var(--text-md);
+  color: var(--text-subtle);
+}
+
+.slider-label {
+  font-size: var(--text-md);
+  color: var(--text-muted);
+
+  & span:last-child {
+    font-family: inherit;
+    color: var(--text-subtle);
+  }
+}
+
+.ctrl-label {
+  font-size: var(--text-md);
+  color: var(--text);
+  min-width: 40px;
+}
+
+.collapsible-settings {
+  border-top: 1px solid var(--border);
+  display: none;
+
+  &.visible {
+    display: block;
+  }
+}

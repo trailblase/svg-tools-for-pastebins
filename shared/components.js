@@ -37,6 +37,8 @@ class SiteHeader extends HTMLElement {
     const activeItem = _NAV.find(item => item.key === activePage);
     const activeLabel = activeItem ? activeItem.label : 'Menu';
 
+    const showNotice = !localStorage.getItem('rentried-notice-dismissed');
+
     this.innerHTML = `
       <header class="site-header">
         <a href="../" class="site-logo">Rentried</a>
@@ -47,9 +49,22 @@ class SiteHeader extends HTMLElement {
           <ul class="nav-dropdown-menu dropdown-menu">${dropdownItems}</ul>
         </div>
         <button class="theme-toggle" aria-label="Toggle theme" data-tip="toggle theme">${themeIcon}</button>
-      </header>`;
+      </header>
+      ${showNotice ? `
+      <div class="site-notice" id="siteNotice">
+        <span class="notice-msg">Please don't sell codes from this website. Using codes from this website for rentry commissions is fine as long as you don't charge anything for it from your customer. This website was made so people have an easy time customizing their code.</span>
+        <button class="notice-close" aria-label="Dismiss">×</button>
+      </div>` : ''}`;
 
     this.querySelector('.theme-toggle').addEventListener('click', toggleTheme);
+
+    const noticeClose = this.querySelector('.notice-close');
+    if (noticeClose) {
+      noticeClose.addEventListener('click', () => {
+        document.getElementById('siteNotice').remove();
+        localStorage.setItem('rentried-notice-dismissed', '1');
+      });
+    }
   }
 }
 

@@ -1,0 +1,33 @@
+.site-notice {
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+  padding: 6px var(--space-2xl);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+  line-height: 1.5;
+}
+
+.notice-msg {
+  flex: 1;
+}
+
+.notice-close {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-subtle);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  padding: 0 5px;
+  line-height: 1.4;
+  flex-shrink: 0;
+  transition: var(--transition-color);
+
+  &:hover {
+    background: var(--text);
+    color: var(--surface);
+  }
+}
