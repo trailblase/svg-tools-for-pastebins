@@ -54,7 +54,10 @@ class SiteHeader extends HTMLElement {
       <div class="site-notice" id="siteNotice">
         <span class="notice-msg">Please don't sell codes from this website. Using codes from this website for rentry commissions is fine as long as you don't charge anything for it from your customer. This website was made so people have an easy time customizing their code.</span>
         <button class="notice-close" aria-label="Dismiss">×</button>
-      </div>` : ''}`;
+      </div>` : ''}
+      <div class="site-notice site-notice--stance">
+        <span class="notice-msg">The owner of this website doesn't support Zionism and Pro-Israeli actions. Please don't use my website for profanity and targeted harm towards Palestinians and Pro-Israeli rhetoric.</span>
+      </div>`;
 
     this.querySelector('.theme-toggle').addEventListener('click', toggleTheme);
 
