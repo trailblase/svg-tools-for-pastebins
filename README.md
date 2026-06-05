@@ -1,6 +1,6 @@
 > This READ.me will be brief since this website is severly unoptimised and uses a lot of "duck-tape" to function.
 
-**Rentried** is the name of the website that offers easy and customisable tools for [Rentry.co](rentry.co). The following options are available:
+**Trailblase** is the name of the website that offers easy and customisable tools for [Rentry.co](rentry.co). The following options are available:
 1. SVG Generator
 2. Gradient Markdown Text
 3. SVG Dividers

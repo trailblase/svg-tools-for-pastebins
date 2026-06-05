@@ -41,7 +41,7 @@ class SiteHeader extends HTMLElement {
 
     this.innerHTML = `
       <header class="site-header">
-        <a href="../" class="site-logo">Rentried</a>
+        <a href="../" class="site-logo">Trailblase</a>
         <span class="nav-sep d-none d-md-inline">·</span>
         <nav class="site-nav d-none d-md-flex">${desktopLinks}</nav>
         <div class="dropdown d-md-none ms-2">
